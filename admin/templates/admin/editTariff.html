@@ -1,0 +1,124 @@
+{% extends 'base_layout.html' %}
+
+{% block title %}
+Edit Tariff - EBS
+{% endblock title %}
+
+{% load static %}
+{% block content %}
+
+    <a href="{% url 'admin:bill' %}" class="sign-in-btn">Generate Bills</a>    
+    <a href="{% url 'accounts:logout' %}" class="get-started-btn">Sign out</a>
+  </div>
+</header>
+
+<section id="contact" class="contact">
+<div class="container" data-aos="fade-left">
+    <br>
+    {% include 'accounts/_flash_messages.html'%}
+
+    <form action="{% url 'admin:editTariff' %}" method="post" role="form" class="php-email-form">
+        {% csrf_token %}
+        <input type="hidden" name="source" value="editTariff">
+
+        {% for tariff in tariffID %}
+
+        <div class="row justify-content-start">
+            <div class="col-4 col-lg-3"> ID : </div>
+            <div class="col-8 col-lg-5">
+                <input type="text" name="tariffID" value="{{tariff.tariffID}}" class="form-control" readonly>
+            </div>
+        </div>
+        <br>
+        <div class="row justify-content-start align-middle">
+            <div class="col-4 col-lg-3">Slab 1 Rate : </div>
+            <div class="col-8 col-lg-5">
+                <input type="integer" name="slab1" value="{{tariff.slab1Rate}}" class="form-control">
+            </div>
+        </div>
+        <br>
+        <div class="row justify-content-start align-middle">
+            <div class="col-4 col-lg-3">Slab 2 Rate : </div>
+            <div class="col-8 col-lg-5">
+                <input type="integer" name="slab2" value="{{tariff.slab2Rate}}" class="form-control">
+            </div>
+        </div>
+        <br>
+        <div class="row justify-content-start align-middle">
+            <div class="col-4 col-lg-3">Slab 3 Rate : </div>
+            <div class="col-8 col-lg-5">
+                <input type="integer" name="slab3" value="{{tariff.slab3Rate}}" class="form-control">
+            </div>
+        </div>
+        <br>
+        <div class="row justify-content-start align-middle">
+            <div class="col-4 col-lg-3">Meter Rent (single ph) : </div>
+            <div class="col-8 col-lg-5">
+                {% if tariff.tariffID == 'I' %}
+                <input type="integer" name="singlePhMeterRent" value="{{tariff.singlePhMeterRent}}" class="form-control" readonly>
+                {% else %}
+                <input type="integer" name="singlePhMeterRent" value="{{tariff.singlePhMeterRent}}" class="form-control">
+                {% endif %}
+            </div>
+        </div>
+        <br>
+        <div class="row justify-content-start align-middle">
+            <div class="col-4 col-lg-3">Meter Rent (three ph) : </div>
+            <div class="col-8 col-lg-5">
+                <input type="integer" name="threePhMeterRent" value="{{tariff.threePhMeterRent}}" class="form-control">
+            </div>
+        </div>
+        <br>
+        <div class="row justify-content-start align-middle">
+            <div class="col-4 col-lg-3">TV Fee : </div>
+            <div class="col-8 col-lg-5">
+                
+                {% if tariff.tariffID == 'I' %}
+                <input type="integer" name="TVFee" value="{{tariff.TVFee}}" class="form-control" readonly>                    
+                {% else %}
+                <input type="integer" name="TVFee" value="{{tariff.TVFee}}" class="form-control">
+                {% endif %}
+            </div>
+        </div>
+        <br>
+        <div class="row justify-content-start align-middle">
+            <div class="col-4 col-lg-3">E-Duty : </div>
+            <div class="col-8 col-lg-5">
+                <input type="integer" name="EDuty" value="{{tariff.EDuty}}" class="form-control">
+            </div>
+        </div>
+        <br>
+        <div class="row justify-content-start align-middle">
+            <div class="col-4 col-lg-3">GST : </div>
+            <div class="col-8 col-lg-5">
+                <input type="integer" name="GST" value="{{tariff.GST}}" class="form-control">
+            </div>
+        </div>
+        <br>
+        <div class="row justify-content-start align-middle">
+            <div class="col-4 col-lg-3">NJS : </div>
+            <div class="col-8 col-lg-5">
+                <input type="integer" name="NJS" value="{{tariff.NJS}}" class="form-control">
+            </div>
+        </div>
+        <br>
+                <div class="row justify-content-start align-middle">
+            <div class="col-4 col-lg-3">FCS : </div>
+            <div class="col-8 col-lg-5">
+                <input type="integer" name="FCS" value="{{tariff.FCS}}" class="form-control">
+            </div>
+        </div>
+
+        {% endfor %}
+        <br><br>
+        <div class="row justify-content-middle">
+            <div class="col">
+                <div class="text-center"><button class="get-started-btn" type="submit">Submit</button></div>
+            </div>
+        </div>
+
+    </form>
+
+</div>
+</section>
+{% endblock content %}

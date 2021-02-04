@@ -1,0 +1,80 @@
+{% extends 'base_layout.html' %}
+
+{% block title %}
+Edit User - EBS
+{% endblock title %}
+
+{% load static %}
+{% block content %}
+
+    <a href="{% url 'admin:bill' %}" class="sign-in-btn">Generate Bills</a>
+    <a href="{% url 'accounts:logout' %}" class="get-started-btn">Sign out</a>
+  </div>
+</header>
+
+<section id="contact" class="contact">
+<div class="container" data-aos="fade-left">
+    <br>
+    {% include 'accounts/_flash_messages.html'%}
+
+
+    <form action="{% url 'admin:editUser' %}" method="post" role="form" class="php-email-form">
+        {% csrf_token %}
+        <input type="hidden" name="source" value="editUser">
+
+        {% for user in userEmail %}
+
+        <div class="row justify-content-start">
+            <div class="col-4 col-lg-3"> Email : </div>
+            <div class="col-8 col-lg-5">
+                <input type="email" name="email" value="{{user.email}}" class="form-control" readonly>
+            </div>
+        </div>
+        <br>
+        <div class="row justify-content-start">
+            <div class="col-4 col-lg-3"> First Name : </div>
+            <div class="col-8 col-lg-5">
+                <input type="text" name="fname" value="{{user.first_name}}" class="form-control">
+            </div>
+        </div>
+        <br>
+        <div class="row justify-content-start align-middle">
+            <div class="col-4 col-lg-3">Last Name : </div>
+            <div class="col-8 col-lg-5">
+                <input type="text" name="lname" value="{{user.last_name}}" class="form-control">
+            </div>
+        </div>
+        <br>
+        <div class="row justify-content-start">
+            <div class="col-4 col-lg-3"> is Admin : </div>
+            <div class="col-8 col-lg-5">
+                <select name="isAdmin" class="custom-select">
+                    <option value="{{user.is_staff}}">{{user.is_staff}}</option>
+                    <option value="{{user.is_staff|yesno:"False,True"}}">{{ user.is_staff|yesno:"False,True" }}</option>
+                </select>
+            </div>
+        </div>
+        <br>
+        <div class="row justify-content-start">
+            <div class="col-4 col-lg-3"> is Active : </div>
+            <div class="col-8 col-lg-5">
+                <select name="isActive" class="custom-select">
+                    <option value="{{user.is_active}}">{{user.is_active}}</option>
+                    <option value="{{user.is_active|yesno:"False,True"}}">{{ user.is_active|yesno:"False,True" }}</option>
+                </select>
+            </div>
+        </div>
+
+        {% endfor %}
+        <br><br>
+        <div class="row justify-content-middle">
+            <div class="col">
+                <div class="text-center"><button class="get-started-btn" type="submit">Submit</button></div>
+            </div>
+        </div>
+
+    </form>
+
+</div>
+</section>
+{% endblock content %}

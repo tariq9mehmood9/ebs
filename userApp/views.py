@@ -1,15 +1,21 @@
-from django.shortcuts import render
+from django.shortcuts import render, redirect
 from django.contrib import messages
 from django.contrib.auth.models import User
 from django.contrib.auth.decorators import login_required
 from datetime import datetime
 import math
 
+from baseApp.models import tblFeeders
+from .models import tblMeters
+
 @login_required(login_url='/accounts/')
 def home_view(request):
-    # User = request.user
-    # currUser = tblUser.objects.get(user_id = User.email)
-   
+    context = {}
+    currUser = request.user
+    
+    if currUser.is_superuser:
+        return redirect('admin:home')
+
     # t1 = currUser.lastTime
     # bill = currUser.bill
     # consumedUnits = currUser.consumedUnits
@@ -66,13 +72,66 @@ def home_view(request):
     #     pass
 
     # currUser.save()
+    meterID = tblMeters.objects.values('id', 'isActive').filter(user = currUser)
+    context.update({
+        'meterID' : meterID,
+    })
 
-    # context = {
-    #     'tbl_cost' : TblUnitprice.objects.values('hour', 'cost'),
-    #     'tbl_user' : tblUser.objects.get(user_id = User.email)
-    # }, context=context
-    return render(request, 'userApp/home.html')
+    return render(request, 'userApp/home.html', context=context)
     
 @login_required(login_url='/accounts/')
 def profile_view(request):
     return render(request, 'userApp/profile.html')
+
+@login_required(login_url='/accounts/')
+def meter_view(request):
+    context = {}
+    currUser = request.user
+    fmt = "%Y:%m:%d"
+
+    if request.method == 'POST':
+
+        source = request.POST.get('source')
+        meterID = tblMeters.objects.values('id', 'isActive').filter(user = currUser)
+        context.update({
+            'meterID' : meterID,
+        })
+        
+        if source == 'Single' or source == 'Three':
+            context.update({
+                'meterType' : source
+            })
+            return render(request, 'userApp/meter.html', context=context)
+        
+        elif source == 'Meter':
+
+            # This Quesry returns the total number of connections a user has.
+            totalConn = tblMeters.objects.filter(user = currUser).count()
+            if totalConn >= 3:
+                messages.add_message(request, messages.ERROR, 'Request failed. You already have ' + str(totalConn) + ' connections!')
+                return render(request, 'userApp/home.html', context=context)
+
+            address = request.POST.get('address')
+            connectionType = request.POST.get('connectionType')
+            meterType = request.POST.get('meterType')
+            location = request.POST.get('location')
+            installationDate = datetime.now().strftime(fmt)
+            location = tblFeeders.objects.get(name = location)
+
+            newMeterConnection = tblMeters(
+                user = currUser,
+                feederName = location,
+                meterType = meterType,
+                connectionType = connectionType,
+                address = address,
+                installationDate = installationDate,
+                isActive = True
+            )
+            newMeterConnection.save()
+            
+            return render(request, 'userApp/home.html', context=context)
+        else:
+            pass
+    else:
+        pass
+    return render(request, 'userApp/meter.html', context=context)

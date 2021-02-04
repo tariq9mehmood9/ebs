@@ -1,0 +1,75 @@
+{% extends 'base_layout.html' %}
+
+{% block title %}
+Edit Feeder - EBS
+{% endblock title %}
+
+{% load static %}
+{% block content %}
+    
+    <a href="{% url 'admin:bill' %}" class="sign-in-btn">Generate Bills</a>
+    <a href="{% url 'accounts:logout' %}" class="get-started-btn">Sign out</a>
+  </div>
+</header>
+
+<section id="contact" class="contact">
+<div class="container" data-aos="fade-left">
+    <br>
+    {% include 'accounts/_flash_messages.html'%}
+
+    <form action="{% url 'admin:editFeeder' %}" method="post" role="form" class="php-email-form">
+        {% csrf_token %}
+
+        <input type="hidden" name="source" value="editFeeder">
+
+        {% for feeder in name %}
+
+        <div class="row justify-content-start">
+            <div class="col-4 col-lg-3"> Feeder Name : </div>
+            <div class="col-8 col-lg-5">
+                <input type="text" name="name" value="{{feeder.name}}" class="form-control" readonly>
+            </div>
+        </div>
+        <br>
+        <div class="row justify-content-start">
+            <div class="col-4 col-lg-3"> Division : </div>
+            <div class="col-8 col-lg-5">
+                <input type="text" name="div" value="{{feeder.div}}" class="form-control">
+            </div>
+        </div>
+        <br>
+        <div class="row justify-content-start">
+            <div class="col-4 col-lg-3"> Sub-Division : </div>
+            <div class="col-8 col-lg-5">
+                <input type="text" name="subDiv" value="{{feeder.subDiv}}" class="form-control">
+            </div>
+        </div>
+        <br>
+        <div class="row justify-content-start">
+            <div class="col-4 col-lg-3"> Reading Date : </div>
+            <div class="col-8 col-lg-5">
+                <input type="date" name="readingDate" value="{{feeder.readingDate}}" class="form-control" required>
+            </div>
+        </div>
+        <br>
+        <div class="row justify-content-start">
+            <div class="col-4 col-lg-3"> Issue Date : </div>
+            <div class="col-8 col-lg-5">
+                <input type="date" name="issueDate" value="{{feeder.issueDate}}" class="form-control" required>
+            </div>
+        </div>
+
+        
+
+        {% endfor %}
+        <br><br>
+        <div class="row justify-content-middle">
+            <div class="col">
+                <div class="text-center"><button class="get-started-btn" type="submit">Submit</button></div>
+            </div>
+        </div>
+    </form>
+
+</div>
+</section>
+{% endblock content %}

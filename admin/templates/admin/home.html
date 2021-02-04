@@ -1,0 +1,104 @@
+{% extends 'base_layout.html' %}
+
+{% block title %}
+Admin - EBS
+{% endblock title %}
+
+{% load static %}
+{% block content %}
+
+    <a href="{% url 'accounts:logout' %}" class="get-started-btn">Sign out</a>
+  </div>
+</header>
+
+<section id="contact" class="contact">
+<div class="container" data-aos="fade-left">
+    <br>
+    {% include 'accounts/_flash_messages.html'%}
+    
+    <div class="row justify-content-left">
+        <div class="col-lg-4">
+            <form action="{% url 'admin:editUser' %}" method="post" role="form" class="php-email-form">
+                {% csrf_token %}
+                <input type="hidden" name="source" value="home">
+                <div class="form-row">
+                    <div class="col form-group">
+                        <input type="email" name="email" value="{{data.email}}" class="form-control" placeholder="User Email" required>
+                    </div>
+                </div>
+        </div>
+        <div class="col-lg-4">
+            <div class="text-center"><button class="sign-in-btn" type="submit">Edit User</button></div>
+            </form>
+        </div> 
+    </div>
+       
+    <div class="row justify-content-left">
+        <div class="col-lg-4">
+            <form action="{% url 'admin:editTariff' %}" method="post" role="form" class="php-email-form">
+                {% csrf_token %}
+                <input type="hidden" name="source" value="home">
+                <div class="form-row">
+                    <div class="col-md-6 form-group">
+                        <select name="tariffID" class="custom-select" required>
+                            <option value="">Select Tariff</option>  
+                            {% for tariffID in tariffData %}
+                                <option value="{{tariffID}}">{{tariffID}}</option>                                
+                            {% endfor %}         
+                        </select>
+                    </div>
+                </div>
+        </div>
+        <div class="col-lg-4">
+            <div class="text-center"><button class="sign-in-btn" type="submit">Edit Tariff</button></div>
+            </form>
+        </div>
+    </div>
+
+    <div class="row justify-content-left">
+        <div class="col-lg-4">
+            <form action="{% url 'admin:editFeeder' %}" method="post" role="form" class="php-email-form">
+                {% csrf_token %}
+                <input type="hidden" name="source" value="home">
+                <div class="form-row">
+                    <div class="col-md-6 form-group">
+                        <select name="name" class="custom-select" required>
+                            <option value="">Select Feeder</option>
+                            {% for name in feederData %}
+                                <option value="{{name}}">{{name}}</option>                                
+                            {% endfor %}
+                        </select>
+                    </div>
+                </div>
+        </div>
+        <div class="col-lg-4">
+            <div class="text-center"><button class="sign-in-btn" type="submit">Edit Feeder</button></div>
+            </form>
+        </div>
+    </div>
+
+    <div class="row justify-content-left">
+        <div class="col-lg-4">
+            <form action="{% url 'admin:bill' %}" method="post" role="form" class="php-email-form">
+                {% csrf_token %}
+                <input type="hidden" name="source" value="home">
+                <div class="form-row">
+                    <div class="col-md-6 form-group">
+                        <select name="name" class="custom-select" required>
+                            <option value="">Select Feeder</option>
+                            {% for name in feederData %}
+                                <option value="{{name}}">{{name}}</option>                                
+                            {% endfor %}
+                        </select>
+                    </div>
+                </div>
+        </div>
+        <div class="col-lg-4">
+            <div class="text-center"><button class="sign-in-btn" type="submit">Generate Bills</button></div>
+            </form>
+        </div>
+    </div>
+
+</div>
+</section>
+{% endblock content %}

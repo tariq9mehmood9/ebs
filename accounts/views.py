@@ -32,8 +32,6 @@ def register_view(request):
         password1 = request.POST.get('password1')
         password2 = request.POST.get('password2')
 
-        category = request.POST.get('category')
-        location = request.POST.get('location')
 
         if fname == '':
             messages.add_message(request, messages.ERROR, 'First Name is Required')

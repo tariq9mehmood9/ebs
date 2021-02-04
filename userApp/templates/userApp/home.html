@@ -13,10 +13,22 @@ Dynamic Tariff
         <li><a href="{% url 'baseApp:about' %}">Team</a></li>
         <li><a href="{% url 'baseApp:abstract' %}">Abstract</a></li>
         <li><a href="#">Pricing</a></li>
-        <li class="drop-down"><a href="#">Drop Down</a>
+        <li class="drop-down"><a href="">New Connection</a>
           <ul>
-            <li><a href="#">Drop Down 1</a></li>
-            <li><a href="#">Drop Down 2</a></li>
+            <li>
+              <form action="{% url 'userApp:meter' %}" method="POST">
+                {% csrf_token %}
+                <input type="hidden" name="source" value="Single">
+                <a href="#" onclick="event.preventDefault(); this.parentNode.submit()">Single Phase</a>
+              </form>
+            </li>
+            <li>
+              <form action="{% url 'userApp:meter' %}" method="POST">
+                {% csrf_token %}
+                <input type="hidden" name="source" value="Three">
+                <a href="#" onclick="event.preventDefault(); this.parentNode.submit()">Three Phase</a>
+              </form>
+            </li>
           </ul>
         </li>
         <li><a href="#">Contact</a></li>
@@ -40,7 +52,7 @@ Dynamic Tariff
     <h4 class="alert-heading">Welcome {{user.first_name}} &#128515,</h4>
     <p></p>
     <hr>
-    <p class="mb-0"><i class="icofont-info-circle"></i> Please note that our system updates the data only when a load is changed with a minimum interval of 1 minute.</p>
+    <p class="mb-0"></p>
   </div>
   {% include 'accounts/_flash_messages.html'%}
   
@@ -49,25 +61,22 @@ Dynamic Tariff
       <table class="table table-bordered">
         <tbody>
           <tr>
-            <th scope="row">Current Active Load (kW)</th>
-            <td>{{tbl_user.currActiveLoad|floatformat:2}}</td>
-           </tr>
-           <tr>
-            <th scope="row">Current Reactive Load (kVAR)</th>
-            <td>{{tbl_user.currReactiveLoad|floatformat:2}}</td>
-           </tr>
-           <tr>
-            <th scope="row">Total Units Consumed (kWh)</th>
-            <td>{{tbl_user.consumedUnits|floatformat:2}}</td>
-           </tr>
-           <tr>
-            <th scope="row">Total Cost (Rs.)</th>
-            <td>{{tbl_user.bill|floatformat:2}}</td>
+            <th scope="row">Meter Connection(s)</th>
+            
+            {% for meter in meterID %}
+            
+            {% if meter.isActive %}
+            <td style="color: white; background-color:#5fcf80;">{{meter.id}}</td>
+            {% else %}
+            <td style="color: white; background-color:#e02336;">{{meter.id}}</td>
+            {% endif %}
+            {% endfor %}
+
            </tr>
         </tbody>
       </table>
       
-      <div class="card">
+      <!-- <div class="card">
         <div class="card-body">
           <form action="{% url 'userApp:home' %}" method="post">
             {% csrf_token %}
@@ -99,11 +108,11 @@ Dynamic Tariff
           </form>
 
         </div>
-      </div>
+      </div> -->
       <br>
     </div>
 
-    <div class="col-lg-8 col-md-10">
+    <!-- <div class="col-lg-8 col-md-10">
         <div class="card">
             <div class="card-body">
                 <canvas id="lineChart"></canvas>
@@ -116,12 +125,11 @@ Dynamic Tariff
   <div class="alert alert-success" role="alert">
     <p class="mb-0">Load adding feature is just for demo purpose. In final product, data will be taken in real-time with the help of sensors and it will be stored in a database by using GSM module.</p>
   </div>
-</div>
-
+</div> -->
 {% endblock content %}
     
 
-{% block script %}
+<!-- {% block script %}
 <script>
   $(document).ready(function(){
     var ctx = document.getElementById('lineChart').getContext('2d');
@@ -167,5 +175,5 @@ Dynamic Tariff
       });
     });
   </script>
-{% endblock script %}
+{% endblock script %} -->
   

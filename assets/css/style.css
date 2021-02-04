@@ -1386,9 +1386,9 @@ section {
   border-color: #5fcf80;
 }
 
-.contact .php-email-form input {
+/* .contact .php-email-form input {
   height: 44px;
-}
+} */
 
 .contact .php-email-form textarea {
   padding: 10px 12px;

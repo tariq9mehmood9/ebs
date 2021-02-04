@@ -1,0 +1,82 @@
+{% extends 'base_layout.html' %}
+
+{% block title %}
+Generate Bill - EBS
+{% endblock title %}
+
+{% load static %}
+{% block content %}
+
+    <a href="{% url 'accounts:logout' %}" class="get-started-btn">Sign out</a>
+  </div>
+</header>
+<section id="contact" class="contact">
+<div class="container" data-aos="fade-left">
+    <br>
+    {% include 'accounts/_flash_messages.html'%}
+    
+    <form action="{% url 'admin:bill' %}" method="post" role="form" class="php-email-form">
+        {% csrf_token %}
+        <input type="hidden" name="source" value="bill">
+
+    <div class="d-flex justify-content-between">
+        <h4 class="display-6">FEEDER: {{feeder}}</h4>
+        <input type="hidden" name="name" value="{{feeder}}">
+        <h4 class="display-6">
+            <select name="billingMonth" class="form-control form-control-sm" required>
+                <option value="">Select Month</option>
+                <option value="jan">Jan</option>
+                <option value="feb">Feb</option>
+                <option value="mar">Mar</option>
+                <option value="apr">Apr</option>
+                <option value="may">May</option>
+                <option value="jun">Jun</option>
+                <option value="jul">Jul</option>
+                <option value="aug">Aug</option>
+                <option value="sep">Sep</option>
+                <option value="oct">Oct</option>
+                <option value="nov">Nov</option>
+                <option value="dec">Dec</option>
+                
+            </select>
+        </h4>
+    </div>
+    
+    <div class="form-row justify-content-center">
+        <div class="col form-group">
+            <table class="table small">
+                <thead class="small">
+                    <tr>
+                        <th>User</th>
+                        <th>Meter ID</th>
+                        <th>Current Reading</th>
+                        <th>Tariff</th>
+                        <th>Previous Reading</th>
+                    </tr>
+                </thead>
+                <tbody>
+
+                    {% for meter in allMeters %}
+                    <tr>
+                        <td>{{meter.user}}</td>
+                        <td>{{meter.id}}</td>
+                        <td><input class="form-control form-control-sm w-auto" type="integer" name="currentReadingList" required></td>
+                        <td>{{meter.connectionType}}</td>
+                        <td>{{meter.latestReading}}</td>
+                    </tr>
+                    {% endfor %}
+                        
+                </tbody>
+            </table>
+        </div>
+    </div>
+        <div class="row">
+            <div class="col form-group">
+                <div class="text-center"><button class="sign-in-btn" type="submit">Submit</button></div>
+            </form>
+        </div>
+    </div>
+    
+</div>
+</section>
+{% endblock content %}
