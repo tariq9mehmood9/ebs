@@ -10,18 +10,32 @@ Generate Bill - EBS
     <a href="{% url 'accounts:logout' %}" class="get-started-btn">Sign out</a>
   </div>
 </header>
+
 <section id="contact" class="contact">
 <div class="container" data-aos="fade-left">
     <br>
     {% include 'accounts/_flash_messages.html'%}
-    
-    <form action="{% url 'admin:bill' %}" method="post" role="form" class="php-email-form">
-        {% csrf_token %}
-        <input type="hidden" name="source" value="bill">
 
-    <div class="d-flex justify-content-between">
-        <h4 class="display-6">FEEDER: {{feeder}}</h4>
+    <form action="{% url 'admin:editFeeder' %}" method="post" id="form_id">
+        {% csrf_token %}
         <input type="hidden" name="name" value="{{feeder}}">
+        <input type="hidden" name="source" value="bill">
+    </form>
+
+    <form action="{% url 'admin:bill' %}" method="post" role="form" class="php-email-form">
+        {% csrf_token %}    
+        {% if has_error %}
+        <input type="hidden" name="source" value="badRecord">
+        {% else %}
+        <input type="hidden" name="source" value="bill">
+        {% endif %}
+    <div class="d-flex justify-content-between">
+        <h5 class="display-6">FEEDER: {{feeder}}</h5>
+        <input type="hidden" name="name" value="{{feeder}}">
+
+        <h5 class="display-6">Reading Date: {{readingDate}} <a href="javascript:{}" onclick="document.getElementById('form_id').submit();"><i class="icofont-edit" ></i></a></h5>
+        <h5 class="display-6">Issue Date: {{issueDate}} <a href="javascript:{}" onclick="document.getElementById('form_id').submit();"><i class="icofont-edit" ></i></a></h5>
+        
         <h4 class="display-6">
             <select name="billingMonth" class="form-control form-control-sm" required>
                 <option value="">Select Month</option>
@@ -37,11 +51,9 @@ Generate Bill - EBS
                 <option value="oct">Oct</option>
                 <option value="nov">Nov</option>
                 <option value="dec">Dec</option>
-                
             </select>
         </h4>
     </div>
-    
     <div class="form-row justify-content-center">
         <div class="col form-group">
             <table class="table small">
@@ -61,8 +73,20 @@ Generate Bill - EBS
                         <td>{{meter.user}}</td>
                         <td>{{meter.id}}</td>
                         <td><input class="form-control form-control-sm w-auto" type="integer" name="currentReadingList" required></td>
-                        <td>{{meter.connectionType}}</td>
+                        <td>{{meter.tariffID}}</td>
                         <td>{{meter.latestReading}}</td>
+                    </tr>
+                    {% endfor %}
+
+                    {% for record in badRecord %}
+                    <input type="hidden" name="userEmail" value="{{record.user}}">
+                    <input type="hidden" name="meterID" value="{{record.id}}">
+                    <tr>
+                        <td>{{record.user}}</td>
+                        <td>{{record.id}}</td>
+                        <td><input class="form-control form-control-sm w-auto" type="integer" name="currentReadingList" required></td>
+                        <td>{{record.tariffID}}</td>
+                        <td>{{record.latestReading}}</td>
                     </tr>
                     {% endfor %}
                         

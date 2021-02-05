@@ -126,14 +126,13 @@ def editFeeder_view(request):
     context = {}
     currUser = request.user
     fmt = "%Y-%m-%d"
-
     if not currUser.is_superuser:
         messages.add_message(request, messages.ERROR, 'Admin credentials are Wrong!')
         return redirect('accounts:login')
 
     if request.method == 'POST':
         source = request.POST.get('source')
-        if source == 'home':
+        if source == 'home' or source == 'bill':
             name = request.POST.get('name')
             name = tblFeeders.objects.filter(name = name)
             if len(name) == 0:
@@ -151,16 +150,13 @@ def editFeeder_view(request):
 
             readingDateValue = datetime.strptime(readingDate, fmt)
             issueDateValue = datetime.strptime(issueDate, fmt)
-            # dueDateValue = issueDateValue + timedelta(days=7)
-            # dueDate = datetime.strftime(dueDateValue, fmt)
-
+     
             try:
                 feeder = tblFeeders.objects.get(name = name)
                 feeder.div = div
                 feeder.subDiv = subDiv
                 feeder.readingDate = readingDate
                 feeder.issueDate = issueDate
-                # feeder.dueDate = dueDate
                 feeder.save()
                 messages.add_message(request, messages.SUCCESS, 'Feeder data updated successfully')
                 return redirect('admin:home')
@@ -180,37 +176,44 @@ def bill_view(request):
         return redirect('accounts:login')
 
     source = request.POST.get('source')
-    
     name = request.POST.get('name')
-    allUsers = User.objects.filter(is_staff = False)
-    # IF SOURCE IS ERROR RECORDS, ALLUSERS WILL BE CHANGED
-    allMeters = []
-    for user in allUsers:
-        userMeters = tblMeters.objects.filter(user = user, feederName = name)
-        for meter in userMeters:
-            try:
-                previousBill = tblBills.objects.filter(meterID = meter.id).latest('id').id
-                previousBill = tblBills.objects.get(id = previousBill)
-                latestReading = previousBill.currentReading
-            except:
-                latestReading = 0
+    feeder = tblFeeders.objects.get(name = name)
+    issueDate = feeder.issueDate
+    readingDate = feeder.readingDate
 
-            allMeters.append({
-                'user':meter.user,
-                'id': meter.id,
-                'connectionType': meter.connectionType,
-                'latestReading': latestReading,
-                'meterType' : meter.meterType
-                })
+    if source == 'badRecord':
+        allUsers = User.objects.filter(username__in = request.POST.getlist('userEmail'))
+        userMeters = tblMeters.objects.filter(id__in = request.POST.getlist('meterID'))
+    else:
+        allUsers = User.objects.filter(is_staff = False)
+        userMeters = tblMeters.objects.filter(user__in = allUsers, feederName = name)
+    
+    allMeters = []
+    for meter in userMeters:
+        try:
+            previousBill = tblBills.objects.filter(meterID = meter.id).latest('id').id
+            previousBill = tblBills.objects.get(id = previousBill)
+            latestReading = previousBill.currentReading
+        except:
+            latestReading = 0
+
+        allMeters.append({
+            'user': meter.user,
+            'id': meter.id,
+            'tariffID': meter.connectionType,
+            'latestReading': latestReading,
+            'meterType' : meter.meterType
+            })
     
     if source == 'home':
         context.update({
             'allMeters' : allMeters,
-            'feeder' : name
+            'feeder' : name,
+            'readingDate' : readingDate,
+            'issueDate' : issueDate
         })
         return render(request, 'admin/bill.html', context=context)
-
-    elif source == 'bill':
+    else:
         # check if billMonth exists already, delete first 
         billingMonth = request.POST.get('billingMonth')
         currentReadingList = request.POST.getlist('currentReadingList')
@@ -225,50 +228,77 @@ def bill_view(request):
             "C": [500, 1000],
             "I": [1000, 3000]
         }
-        feeder = tblFeeders.objects.get(name = name)
-        dueDate = feeder.issueDate
+
+        issueDateValue = datetime.strptime(issueDate, fmt)
+        dueDateValue = issueDateValue + timedelta(days=7)
+        dueDate = datetime.strftime(dueDateValue, fmt)
+        badRecord = []
         i = 0
         for i, meter in enumerate(allMeters):
             previousReading = meter['latestReading']
-            tariffID = meter['connectionType']
+            tariffID = meter['tariffID']
             
             currentReading = currentReadingList[i]
             units = int(currentReading) - int(previousReading)
-            slab1Rate, slab2Rate, slab3Rate, sPhaseRent, ThPhaseRent, TVFee, eDuty, GST, NJS, FCS = tariff[tariffID]
-            slab1, slab2 = slabs[tariffID]
-            
-            if units <= slab1:
-               eCost = units * slab1Rate
-            elif units <= slab2:
-                eCost = slab1 * slab1Rate + (units-slab1) * slab2Rate
+            if units < 0:
+                badRecord.append({
+                    'user':meter['user'],
+                    'id': meter['id'],
+                    'tariffID': tariffID,
+                    'latestReading': previousReading,
+                })
+                context.update({
+                    'has_error' : True,
+                })
             else:
-                eCost = slab2 * slab2Rate + (units-slab2) * slab3Rate
-            
-            if meter['meterType'] == "Single":
-                bill = sPhaseRent
-            else:
-                bill = ThPhaseRent
+                slab1Rate, slab2Rate, slab3Rate, sPhaseRent, ThPhaseRent, TVFee, eDuty, GST, NJS, FCS = tariff[tariffID]
+                slab1, slab2 = slabs[tariffID]
 
-            eDuty *= eCost/100
-            NJS *= units
-            FCS *= units
-            GST *= (eCost + NJS + FCS)/100
+                if units <= slab1:
+                    eCost = units * slab1Rate
+                elif units <= slab2:
+                    eCost = slab1 * slab1Rate + (units-slab1) * slab2Rate
+                else:
+                    eCost = slab2 * slab2Rate + (units-slab2) * slab3Rate
+                
+                if meter['meterType'] == "Single":
+                    bill = sPhaseRent
+                else:
+                    bill = ThPhaseRent
 
-            bill += eCost+eDuty+GST+NJS+FCS+TVFee
+                eDuty *= eCost/100
+                NJS *= units
+                FCS *= units
+                GST *= (eCost + NJS + FCS)/100
 
-            newBill = tblBills(
-                previousReading = previousReading,
-                currentReading = currentReading,
-                units = units,
-                amount = bill,
-                status = 'UNPAID',
-                billingMonth = billingMonth,
-                meterID = tblMeters.objects.get(id = meter['id']),
-                tariffID = tblTariffs.objects.get(tariffID = tariffID),
-                dueDate = dueDate
-            )
-            print(newBill.dueDate)
-            # newBill.save()
+                bill += eCost+eDuty+GST+NJS+FCS+TVFee
+
+                newBill = tblBills(
+                    previousReading = previousReading,
+                    currentReading = currentReading,
+                    units = units,
+                    amount = bill,
+                    status = 'UNPAID',
+                    billingMonth = billingMonth,
+                    meterID = tblMeters.objects.get(id = meter['id']),
+                    tariffID = tblTariffs.objects.get(tariffID = tariffID),
+                    dueDate = dueDate
+                )
+                newBill.save()
             i += 1
 
-    return render(request, 'admin/bill.html', context=context)
+        try:
+            if context['has_error']:
+                context.update({
+                    'badRecord' : badRecord,
+                    'feeder' : name,
+                    'readingDate' : readingDate,
+                    'issueDate' : issueDate
+                })
+                messages.add_message(request, messages.ERROR, 'Incorrect Data Detected. Re-Submit the following Else it will be Discarded')
+                return render(request, 'admin/bill.html', context=context)
+        except:
+            pass
+
+    messages.add_message(request, messages.SUCCESS, 'All Bills Have Been Generated Successfully')
+    return redirect('admin:home')
