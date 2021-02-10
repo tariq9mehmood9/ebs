@@ -10,6 +10,3 @@ def home_view(request):
 
 def about_view(request):
     return render(request, 'baseApp/about.html')
-
-def abstract_view(request):
-    return render(request, 'baseApp/abstract.html')

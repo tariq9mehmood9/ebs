@@ -1,0 +1,128 @@
+{% extends 'base_layout.html' %}
+
+{% block title %}
+View Bill - EBS
+{% endblock title %}
+
+{% load static %}
+{% block content %}
+    <a href="{% url 'userApp:home' %}" class="get-started-btn">BACK</a>
+  </div>
+</header>
+
+<div class="container">
+  {% include 'accounts/_flash_messages.html'%}
+
+  <hr style="background-color: #5FC580;">
+  <div class="row align-items-center">
+    <div class="col-12 col-lg-6">
+        <div class="d-flex">
+            <img class="align-self-center" src="{% static 'img/logo.png' %}" style="width: 64px; height: 64px">
+            <div>
+                <h1 style="margin-bottom: 0;color: #5FC580">EBS<br><h6><small class="text-muted">Electric Billing System</small></h6></h1>
+            </div>
+        </div>
+        <div>
+            <h4>{{user.first_name}} {{user.last_name}}</h4>
+            <h6>{{meter.address}}</h6>
+        </div>
+    </div>
+    <div class="col-12 col-lg-6">
+        <div class="row">
+            <div class="col-4">
+                Feeder : <br>
+                Sub-Division : <br>
+                Division : <br> <br>
+                Meter No : <br>
+                Customer ID : <br>
+                Bill No :
+            </div>
+            <div class="col-4">
+                {{feeder.name}} <br>
+                {{feeder.subDiv}} <br>
+                {{feeder.div}} <br> <br>
+                {{meter.id}} <br>
+                {{user.id}} <br>
+                {{latestBill.id}}
+            </div>
+            <div class="col-4">
+                <h1>{{latestBill.billingMonth|upper}}</h1>
+                <h4>{{latestBill.status}}</h4>
+                <br><br>
+                Tariff : <strong>{{meter.connectionType}}</strong>
+            </div>
+        </div>
+    </div>
+  </div>
+  <hr style="background-color: #5FC580;">
+  <div class="row">
+    <div class="col-12 col-lg-4">
+        <div class="d-flex justify-content-between" style="background-color: #c5ffd7;">
+            <h4>MONTH</h4>
+            <h4>UNITS</h4>
+            <h4>AMOUNT</h4>
+        </div>
+        {% for bill in prevBills %}
+        <div class="d-flex justify-content-between">
+            <h4>{{bill.billingMonth|upper}}</h4>
+            <h4>{{bill.units|floatformat:0}}</h4>
+            <h4>{{bill.amount|floatformat:0}}</h4>
+        </div>
+        {% endfor %}
+    </div>
+    <div class="col-12 col-lg-8">
+        <div class="row">
+        <div class="col-8">
+            <div class="row">
+                <div class="col-6">
+                    <h5>Current Reading</h5>
+                    <h5>Previous Reading</h5>
+                    <h5>Units</h5> <br><br><br><br><br>
+                    <h4>Due Date</h4>
+                </div>
+                <div class="col-6">
+                    <h5>{{latestBill.currentReading}}</h5>
+                    <h5>{{latestBill.previousReading}}</h5>
+                    <h4>{{latestBill.units}}</h4> <br><br><br><br><br>
+                    <h4>{{latestBill.dueDate}}</h4>
+                </div>
+            </div>
+        </div>
+        <div class="col-4">
+            <div class="row text-right">
+                <div class="col-6">
+                    <h6>E-Cost</h6>
+                    <h6>Meter Rent</h6>
+                    <h6>TV Fee</h6>
+                    <h6>E-Duty</h6>
+                    <h6>NJS</h6>
+                    <h6>FCS</h6>
+                    <h6>GST</h6>
+                </div>
+                <div class="col-6">
+                    <h6>{{tariff.eCost|floatformat:1}}</h6>
+                    <h6>{{tariff.meterRent|floatformat:1}}</h6>
+                    <h6>{{tariff.TVFee|floatformat:1}}</h6>
+                    <h6>{{tariff.eDuty|floatformat:1}}</h6>
+                    <h6>{{tariff.NJS|floatformat:1}}</h6>
+                    <h6>{{tariff.FCS|floatformat:1}}</h6>
+                    <h6>{{tariff.GST|floatformat:1}}</h6>
+                </div>
+            </div>
+            <hr style="background-color: #5FC580;">
+            <div class="row text-right">
+                <div class="col-6">
+                    <h5>Total</h5>
+                </div>
+                <div class="col-6">
+                    <h4>{{latestBill.amount|floatformat:0}}</h4>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    </div>
+  <hr style="background-color: #5FC580;">
+  </div>
+  <hr style="background-color: #5FC580;">  
+{% endblock content %}

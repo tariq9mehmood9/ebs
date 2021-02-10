@@ -1,7 +1,5 @@
 from django.db import models
 
-# Create your models here.
-
 class tblFeeders(models.Model):
     name = models.CharField(max_length=50, primary_key=True)
     div = models.CharField(max_length=50)
@@ -32,24 +30,3 @@ class tblTariffs(models.Model):
 
     def __str__(self):
         return self.tariffID
-
-# class tblBillingMonths(models.Model):
-#     name = models.CharField(max_length=15, primary_key=True)
-
-#     class Meta:
-#         db_table = "tbl_billingmonths"
-
-#     def __str__(self):
-#         return self.name
-
-# class tblSchedules(models.Model):
-#     feederName = models.ForeignKey(tblFeeders, default=None, to_field='name', on_delete=models.CASCADE)
-#     monthName = models.ForeignKey(tblBillingMonths, default=None, to_field='name', on_delete=models.CASCADE)
-#     readingDate = models.CharField(max_length=10, default='15')
-#     issueDate = models.CharField(max_length=10, default='15')
-
-#     class Meta:
-#         db_table = "tbl_schedules"
-
-#     def __str__(self):
-#         return self.feederName + ' ' + self.monthName

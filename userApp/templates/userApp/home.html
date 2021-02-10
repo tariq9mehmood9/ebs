@@ -1,7 +1,7 @@
 {% extends 'base_layout.html' %}
 
 {% block title %}
-Dynamic Tariff
+EBS
 {% endblock title %}
 
 {% load static %}
@@ -10,9 +10,7 @@ Dynamic Tariff
     <nav class="nav-menu d-none d-lg-block">
       <ul>
         <li class="active"><a href="{% url 'baseApp:home' %}">Home</a></li>
-        <li><a href="{% url 'baseApp:about' %}">Team</a></li>
-        <li><a href="{% url 'baseApp:abstract' %}">Abstract</a></li>
-        <li><a href="#">Pricing</a></li>
+        <li><a href="{% url 'baseApp:about' %}">About Us</a></li>
         <li class="drop-down"><a href="">New Connection</a>
           <ul>
             <li>
@@ -31,7 +29,6 @@ Dynamic Tariff
             </li>
           </ul>
         </li>
-        <li><a href="#">Contact</a></li>
       </ul>
     </nav>
     
@@ -49,131 +46,49 @@ Dynamic Tariff
 
   <br>
   <div class="alert alert-success" role="alert">
-    <h4 class="alert-heading">Welcome {{user.first_name}} &#128515,</h4>
-    <p></p>
-    <hr>
+    <h4 class="alert-heading">Welcome {{user.first_name}} &#128515</h4>
     <p class="mb-0"></p>
   </div>
   {% include 'accounts/_flash_messages.html'%}
-  
+
   <div class="row justify-content-center">
+  {% for meter in meterID %}
     <div class="col-lg-4">
-      <table class="table table-bordered">
-        <tbody>
-          <tr>
-            <th scope="row">Meter Connection(s)</th>
-            
-            {% for meter in meterID %}
-            
-            {% if meter.isActive %}
-            <td style="color: white; background-color:#5fcf80;">{{meter.id}}</td>
-            {% else %}
-            <td style="color: white; background-color:#e02336;">{{meter.id}}</td>
-            {% endif %}
-            {% endfor %}
+      <div class="grid">
+        
+        {% if meter.isActive %}
+        <figure style="background: #5fcf80;" class="effect-marley">
+        {% else %}
+        <figure style="background: #e02336;" class="effect-marley">
+        {% endif %}
+        
+          <img src="{% static 'img/meter.jpg' %}"/>
+          <figcaption>
+            <h2><span>{{meter.id}}</span></h2>
+            <p style="text-align: left;">
+              {{meter.feederName}} <br>
+          
+              {% if meter.connectionType == 'C' %}
+                Commercial <br>
+              {% elif meter.connectionType == 'I' %}
+                Industrial <br>
+              {% else %}
+                Residential <br>
+              {% endif %}
+          
+              {{meter.meterType}} phase
+            </p>
+            <a href="javascript:{}" onclick="document.getElementById('{{meter.id}}').submit();"></a>
+          </figcaption>			
+        </figure>
+      </div>
 
-           </tr>
-        </tbody>
-      </table>
+      <form action="{% url 'userApp:viewBill' %}" method="post" id="{{meter.id}}">
+        {% csrf_token %}
+        <input type="hidden" name="meterID" value="{{meter.id}}">
+      </form>
       
-      <!-- <div class="card">
-        <div class="card-body">
-          <form action="{% url 'userApp:home' %}" method="post">
-            {% csrf_token %}
-
-            <div class="form-row">
-              <div class="col form-group">
-                <label><input type="checkbox" value="1" name="load"> 1kW</label>
-              </div>
-              <div class="col form-group">
-                <label><input type="checkbox" value="10" name="load"> 10kW</label>
-              </div>
-
-              <div class="col form-group">
-                <label><input type="checkbox" value="100" name="load"> 100kW</label>
-              </div>
-              <div class="col form-group">
-                <label><input type="checkbox" value="1000" name="load"> 1MW</label>
-              </div>
-            </div>
-
-            <div class="form-row">
-              <div class="col form-group">
-                <button type="submit" class="btn get-started-btn" value="1" name="load_action">Add Load</button>
-              </div>
-              <div class="col form-group">
-                <button type="submit" class="btn get-started-btn" value="0" name="load_action">Remove Load</button>
-              </div>
-            </div>
-          </form>
-
-        </div>
-      </div> -->
-      <br>
     </div>
-
-    <!-- <div class="col-lg-8 col-md-10">
-        <div class="card">
-            <div class="card-body">
-                <canvas id="lineChart"></canvas>
-            </div>
-        </div>
-    </div>
+  {% endfor %}
   </div>
-
-  <br>
-  <div class="alert alert-success" role="alert">
-    <p class="mb-0">Load adding feature is just for demo purpose. In final product, data will be taken in real-time with the help of sensors and it will be stored in a database by using GSM module.</p>
-  </div>
-</div> -->
 {% endblock content %}
-    
-
-<!-- {% block script %}
-<script>
-  $(document).ready(function(){
-    var ctx = document.getElementById('lineChart').getContext('2d');
-    Chart.defaults.global.animation.duration = 1500;
-    Chart.defaults.global.legend.display = false;
-    Chart.defaults.global.tooltips.displayColors = false;
-    Chart.defaults.global.title.text = 'Tariff Chart'; 
-    Chart.defaults.global.title.display = true;
-    Chart.defaults.scale.gridLines.color = 'rgba(0, 0, 0, 0.05)';
-    var myChart = new Chart(ctx, {
-        type: 'bar',
-        data: {
-            labels: [{% for item in tbl_cost %} '{{item.hour}}',{% endfor %}],
-            datasets: [{
-
-              backgroundColor: 'rgba(97, 207, 128, 0.4)',
-              hoverBackgroundColor: 'rgba(97, 207, 128, 1)',
-              borderColor: 'rgba(97, 207, 128, 01)',
-              borderWidth: 1,
-
-                data: [{% for item in tbl_cost %} {{item.cost}},{% endfor %}],
-            }]
-        },
-        options: {
-            scales: {
-                yAxes: [{
-                  scaleLabel: {
-                    display: true,
-                    labelString: 'Cost(Rs.)'
-                  },
-                  ticks: {
-                      beginAtZero: true
-                    }
-                }],
-                xAxes: [{
-                  scaleLabel: {
-                    display: true,
-                    labelString: 'Time(Hr)'
-                  }
-                }]
-            }
-        }
-      });
-    });
-  </script>
-{% endblock script %} -->
-  

@@ -41,8 +41,11 @@ def editUser_view(request):
             if len(userEmail) == 0:
                 messages.add_message(request, messages.ERROR, 'user does not exist!')
                 return redirect('admin:home')
+            for thisUser in userEmail:
+                userMeters = tblMeters.objects.filter(user = thisUser)
             context.update({
                 'userEmail' : userEmail,
+                'userMeters' : userMeters
             })
         elif source == 'editUser':
             email = request.POST.get('email')
@@ -50,7 +53,14 @@ def editUser_view(request):
             lname = request.POST.get('lname')
             isAdmin = request.POST.get('isAdmin')
             isActive = request.POST.get('isActive')
-            
+            meterStatus = request.POST.getlist('meterStatus')
+            meterID = []
+            meterIsActive = []
+            for i in range(0, len(meterStatus)):
+                meterList = meterStatus[i].split()
+                meterID.append(meterList[0])
+                meterIsActive.append(meterList[1])
+            meters =  tblMeters.objects.filter(id__in = meterID)
             try:
                 user = User.objects.get(username = email)
                 user.first_name = fname
@@ -59,6 +69,10 @@ def editUser_view(request):
                 user.is_superuser = isAdmin
                 user.is_active = isActive
                 user.save()
+                for i in range(0, len(meterID)):
+                    newMeter = tblMeters.objects.get(id = meterID[i])
+                    newMeter.isActive = meterIsActive[i]
+                    newMeter.save()
                 messages.add_message(request, messages.SUCCESS, 'User updated successfully')
                 return redirect('admin:home')
             except :

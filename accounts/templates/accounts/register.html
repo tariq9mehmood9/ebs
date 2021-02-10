@@ -1,24 +1,14 @@
 {% extends 'base_layout.html' %}
 
 {% block title %}
-  Sign up - Dynamic Tariff
+  Sign up - EBS
 {% endblock title %}
 
 {% block content %}
     <nav class="nav-menu d-none d-lg-block">
       <ul>
         <li><a href="{% url 'baseApp:home' %}">Home</a></li>
-        <li><a href="{% url 'baseApp:about' %}">Team</a></li>
-        <li><a href="{% url 'baseApp:abstract' %}">Abstract</a></li>
-        <li><a href="#">Pricing</a></li>
-        <li class="drop-down"><a href="#">Drop Down</a>
-          <ul>
-            <li><a href="#">Drop Down 1</a></li>
-            <li><a href="#">Drop Down 2</a></li>
-          </ul>
-        </li>
-        <li><a href="#">Contact</a></li>
-      </ul>
+        <li><a href="{% url 'baseApp:about' %}">About Us</a></li>
     </nav>
     <a href="{% url 'accounts:login' %}" class="sign-in-btn" style="margin-right: 48px;">Sign in</a>
   </div>

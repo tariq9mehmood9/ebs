@@ -7,7 +7,6 @@ Edit User - EBS
 {% load static %}
 {% block content %}
 
-    <a href="{% url 'admin:bill' %}" class="sign-in-btn">Generate Bills</a>
     <a href="{% url 'accounts:logout' %}" class="get-started-btn">Sign out</a>
   </div>
 </header>
@@ -64,7 +63,20 @@ Edit User - EBS
                 </select>
             </div>
         </div>
-
+        
+        {% for meter in userMeters %}
+        <br>
+        <div class="row justify-content-start">
+            <div class="col-4 col-lg-3"> Meter is Active ({{meter.id}}) : </div>
+            <div class="col-8 col-lg-5">
+                <select name="meterStatus" class="custom-select">
+                    <option value="{{meter.id}} {{meter.isActive}}">{{meter.isActive}}</option>
+                    <option value="{{meter.id}} {{meter.isActive|yesno:"False,True"}}">{{ meter.isActive|yesno:"False,True" }}</option>
+                </select>
+            </div>
+        </div>
+        {% endfor %}
+            
         {% endfor %}
         <br><br>
         <div class="row justify-content-middle">

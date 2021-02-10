@@ -2,8 +2,6 @@ from django.db import models
 from django.contrib.auth.models import User
 from baseApp.models import tblFeeders, tblTariffs
 
-# Create your models here.
-
 class tblMeters(models.Model):
     user = models.ForeignKey(User, default=None, to_field='username', on_delete=models.CASCADE)
     feederName = models.ForeignKey(tblFeeders, default=None, to_field='name', on_delete=models.CASCADE)
