@@ -39,7 +39,8 @@ def meter_view(request):
             totalConn = tblMeters.objects.filter(user = currUser).count()
             if totalConn >= 3:
                 messages.add_message(request, messages.ERROR, 'Request failed. You already have ' + str(totalConn) + ' connections!')
-                return render(request, 'userApp/home.html', context=context)
+                return redirect('userApp:home')
+                # return render(request, 'userApp/home.html', context=context)
             address = request.POST.get('address')
             connectionType = request.POST.get('connectionType')
             meterType = request.POST.get('meterType')
@@ -114,6 +115,7 @@ def viewBill_view(request):
             'feeder' : feeder,
             'bills' : bills,
             'latestBill' : latestBill,
-            'prevBills' : prevBills
+            'prevBills' : prevBills,
+            'latePayment' : math.floor(latestBill.amount * 1.05)
         })
     return render(request, 'userApp/viewBill.html', context=context)

@@ -2,14 +2,14 @@ from django.shortcuts import render, redirect
 from django.contrib import messages
 from django.contrib.auth import login, logout, authenticate
 from django.contrib.auth.models import User
-# from django.contrib.sites.shortcuts import get_current_site
-# from django.utils.encoding import force_bytes, force_text
-# from django.utils.http import urlsafe_base64_encode, urlsafe_base64_decode
-# from django.template.loader import render_to_string
-# from django.core.mail import EmailMessage
+from django.contrib.sites.shortcuts import get_current_site
+from django.utils.encoding import force_bytes, force_text
+from django.utils.http import urlsafe_base64_encode, urlsafe_base64_decode
+from django.template.loader import render_to_string
+from django.core.mail import EmailMessage
 from django.conf import settings
 from validate_email import validate_email
-# from .tokens import generate_token
+from .tokens import generate_token
 # import threading
 
 # class EmailThread(threading.Thread):
@@ -59,31 +59,31 @@ def register_view(request):
         user.set_password(password1)
         user.first_name = fname
         user.last_name = lname
-        user.is_active = True
+        user.is_active = False
         user.save()
 
-        # current_site = get_current_site(request)
-        # email_subject = 'Activate your account'
-        # message = render_to_string('accounts/activate.html', 
-        #         {
-        #             'user': user,
-        #             'domain': current_site.domain,
-        #             'uid':urlsafe_base64_encode(force_bytes(user.pk)),
-        #             'token':generate_token.make_token(user),
-        #         }
-        #         )
+        current_site = get_current_site(request)
+        email_subject = 'Activate your account'
+        message = render_to_string('accounts/activate.html', 
+                {
+                    'user': user,
+                    'domain': current_site.domain,
+                    'uid':urlsafe_base64_encode(force_bytes(user.pk)),
+                    'token':generate_token.make_token(user),
+                }
+                )
 
-        # email_message = EmailMessage(
-        #     email_subject,
-        #     message,
-        #     settings.EMAIL_HOST_USER,
-        #     [email]
-        # )
-
+        email_message = EmailMessage(
+            email_subject,
+            message,
+            settings.EMAIL_HOST_USER,
+            [email]
+        )
+        email_message.send()
         # EmailThread(email_message).start()
-        # messages.add_message(request, messages.SUCCESS, 'Account created succesfully. Confirm your email to sign in')
+        messages.add_message(request, messages.SUCCESS, 'Account created succesfully. Confirm your email to sign in')
 
-        # return render(request, 'accounts/login.html')
+        return render(request, 'accounts/login.html')
         login(request, user)
         return redirect('baseApp:home')
     else:
@@ -137,18 +137,18 @@ def logout_view(request):
     messages.add_message(request, messages.SUCCESS, 'Signed out successfully')
     return redirect('accounts:login')
 
-# def ActivateView(request, uidb64, token):
-#     try:
-#         uid = force_text(urlsafe_base64_decode(uidb64))
-#         user = User.objects.get(pk=uid)
-#     except(TypeError, ValueError, OverflowError, User.DoesNotExist):
-#         user = None
-#     if user is not None and generate_token.check_token(user, token):
-#         user.is_active = True
-#         user.save()
-#         login(request, user)
-#         messages.add_message(request, messages.SUCCESS, 'Thank you for your email confirmation. Now you can sign in your account.')
-#         return redirect('accounts:login')
-#     else:
-#         messages.add_message(request, messages.ERROR, 'Activation link is invalid! Please re-request the activation link')
-#         return redirect('accounts:register')
+def ActivateView(request, uidb64, token):
+    try:
+        uid = force_text(urlsafe_base64_decode(uidb64))
+        user = User.objects.get(pk=uid)
+    except(TypeError, ValueError, OverflowError, User.DoesNotExist):
+        user = None
+    if user is not None and generate_token.check_token(user, token):
+        user.is_active = True
+        user.save()
+        login(request, user)
+        messages.add_message(request, messages.SUCCESS, 'Thank you for your email confirmation.')
+        return redirect('userApp:home')
+    else:
+        messages.add_message(request, messages.ERROR, 'Activation link is invalid! Please re-request the activation link')
+        return redirect('accounts:register')
